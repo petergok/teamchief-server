@@ -2,6 +2,15 @@ var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 var db = require('./dbschema');
 
+passport.serializeUser(function(user, done) {
+  done(null, user);
+});
+
+passport.deserializeUser(function(user, done) {
+  done(null, user);
+});
+
+
 passport.use(new LocalStrategy(function(username, password, done) {
   db.userModel.findOne({ username: username }, function(err, user) {
     if (err) { return done(err); }
@@ -17,4 +26,7 @@ passport.use(new LocalStrategy(function(username, password, done) {
   });
 }));
 
-exports.ensureAuthenticated = passport.authenticate('local');
+exports.ensureAuthenticated = function(req, res, next) {
+  if (req.isAuthenticated()) { return next(); }
+  res.send("NOT AUTHENTICATED");
+}

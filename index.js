@@ -2,7 +2,8 @@ var express = require('express');
 var logfmt = require('logfmt');
 var http = require('http');
 var gcm = require('node-gcm');
-var passport = require('./config/pass.js');
+var pass = require('./config/pass.js');
+var passport = require('passport')
 var db = require('./config/dbschema.js');
 
 var app = express();
@@ -10,12 +11,18 @@ var app = express();
 app.use(logfmt.requestLogger());
 
 var bodyParser = require('body-parser')
-app.use(bodyParser.urlencoded())
+
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.set('port', Number(process.env.PORT || 8090));
 
-app.put('/message', passport.ensureAuthenticated, sendMessage);
-app.put('/user', registerNewUser);
+app.put('/message', passport.authenticate('local'), sendMessage);
+app.post('/user', registerNewUser);
 
 function registerNewUser(req, res, next) {
     console.log(req.body);
@@ -31,6 +38,11 @@ function registerNewUser(req, res, next) {
         password: req.body.password,
         gcmId: req.body.gcmId,
         gcmIdAppVersion: req.body.appVersion
+    });
+
+    newUser.save(function (err) {
+        console.log(err);
+      // saved!
     })
 
     res.send("CREATED");

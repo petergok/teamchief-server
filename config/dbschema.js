@@ -4,7 +4,7 @@ var SALT_WORK_FACTOR = 10;
 
 exports.mongoose = mongoose;
 
-var uristring = process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || 'mongodb://localhost/AppMongoose';
+var uristring = process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || 'mongodb://localhost/NewDatabase';
 
 mongoose.connect(uristring, function (err, res) {
   if (err) {
@@ -34,10 +34,10 @@ conversationSchema = new Schema({
 
 userSchema = new Schema({
   username: { type: String, required: true, unique: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true},
-  gcmId: {type: String, required: true},
-  gcmIdAppVersion: {type: String, required: true},
+  email: { type: String, required: true, unique: false },
+  password: { type: String, required: false},
+  gcmId: {type: String, required: false},
+  gcmIdAppVersion: {type: String, required: false},
   conversations: [{type: Schema.Types.ObjectId, ref: 'Conversation'}]
 });
 
@@ -67,6 +67,10 @@ userSchema.methods.comparePassword = function(candidatePassword, cb) {
 var userModel = mongoose.model('User', userSchema);
 var messageModel = mongoose.model('Message', messageSchema);
 var conversationModel = mongoose.model('Conversation', conversationSchema);
+
+userModel.remove({}, function(err) { 
+   console.log('collection removed') 
+});
 
 exports.messageModel = messageModel;
 exports.conversationModel = conversationModel;
