@@ -19,17 +19,17 @@ var Schema = mongoose.Schema;
 var message, conversation, userSchema;
 
 messageSchema = new Schema({
-    sender: userSchema,
-    conversation: conversationSchema,
-    sendTime: {type: int, required: true},
+    sender: {type: Schema.Types.ObjectId, ref: 'User'},
+    conversation: {type: Schema.Types.ObjectId, ref: 'Conversation'},
+    sendTime: {type: Number, required: true},
     text: {type: String, required: true}
 })
 
 conversationSchema = new Schema({
     convoId: {type: String, required: true, unique: true},
     name: {type: String, required: false},
-    users: [userSchema],
-    messages: [messageSchema]
+    users: [{type: Schema.Types.ObjectId, ref: 'User'}],
+    messages: [{type: Schema.Types.ObjectId, ref: 'Message'}]
 })
 
 userSchema = new Schema({
@@ -38,7 +38,7 @@ userSchema = new Schema({
   password: { type: String, required: true},
   gcmId: {type: String, required: true},
   gcmIdAppVersion: {type: String, required: true},
-  conversations: [conversationSchema]
+  conversations: [{type: Schema.Types.ObjectId, ref: 'Conversation'}]
 });
 
 userSchema.pre('save', function(next) {
