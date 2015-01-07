@@ -5,6 +5,7 @@ var gcm = require('node-gcm');
 var pass = require('./config/pass.js');
 var passport = require('passport')
 var db = require('./config/dbschema.js');
+var async = require('async');
 
 var app = express();
 
@@ -25,6 +26,8 @@ app.set('port', Number(process.env.PORT || 8090));
 
 app.post('/message', passport.authenticate('local'), sendMessage);
 app.post('/conversation', passport.authenticate('local'), createConversation);
+app.get('/conversations', passport.authenticate('local'), getConversations);
+app.get('/conversation/:id?', passport.authenticate('local'), getConversation);
 app.post('/user', registerNewUser);
 
 function registerNewUser(req, res, next) {
@@ -54,6 +57,119 @@ function registerNewUser(req, res, next) {
     });
 };
 
+function getConversations(req, res, next) {
+    console.log(req.query);
+
+    db.userModel.findOne({username: req.query.username}).exec(function(err, user) {
+        if (err) {
+            console.log(err);
+            res.send(new Error('Error finding user'));
+            return;
+        }
+
+        db.conversationModel.find({}).where('_id').select('-__v').in(user.conversations).sort('-latestActive')
+        .populate({
+            path: 'messages',
+            select: '-_id _sender sendTime text',
+            options: {
+                limit: 1,
+                sort: { 'sendTime': -1 }
+            }
+        }).populate({
+            path: 'users',
+            select: '-_id username'
+        }).exec(function(err, conversations) {
+            if (err) {
+                console.log(err);
+                res.send(new Error('Error finding conversations'));
+                return;    
+            }
+            if (!conversations) {
+                res.send({});
+                return;
+            }
+
+            async.map(conversations, function(conversation, done) {
+                if (!conversation.messages[0]) {
+                    return done(null, conversation);
+                }
+
+                var message = conversation.messages[0];
+                conversation.messages = [message];
+
+                message.populate({
+                    path: '_sender',
+                    select: '-_id username'
+                }, function(err, message) {
+                    if (err) {
+                        done(err);
+                    } else {
+                        done(null, conversation);
+                    }
+                })
+            }, function(err, conversation_arrray) {
+                if (err) {
+                    console.log(err);
+                    res.send(new Error('Cannot create array'));
+                } else {
+                    res.json(conversation_arrray);
+                }
+            });
+        });
+    });
+};
+
+function getConversation(req, res, next) {
+    console.log(req.query);
+
+    if (!req.params || !req.params.id) {
+        res.status(400).send('Invalid request');
+        return;
+    }    
+
+    db.conversationModel.findById(req.params.id).select('-__v')
+        .populate({
+            path: 'messages',
+            select: '-_id _sender sendTime text',
+            options: {
+                sort: { 'sendTime': -1 }
+            }
+        }).populate({
+            path: 'users',
+            select: '-_id username'
+        }).exec(function(err, conversation) {
+            if (err) {
+                console.log(err);
+                res.send(new Error('Error finding conversations'));
+                return;    
+            }
+            if (!conversation) {
+                res.send(new Error('Conversation not found'));
+                return;
+            }
+
+            async.map(conversation.messages, function(message, done) {
+                message.populate({
+                    path: '_sender',
+                    select: '-_id username'
+                }, function(err, message) {
+                    if (err) {
+                        done(err);
+                    } else {
+                        done(null, message);
+                    }
+                });
+            }, function(err, message_array) {
+                if (err) {
+                    console.log(err);
+                    res.send(new Error('Cannot create array'));
+                } else {
+                    res.send(conversation);
+                }
+            });
+        });
+}
+
 function createConversation(req, res, next) {
     console.log(req.body);
     if (!req.body || !req.body.users || req.body.users.length < 2) {
@@ -79,7 +195,8 @@ function createConversation(req, res, next) {
         var newConversation = new db.conversationModel({
             name: req.body.name ? req.body.name : "No Name",
             users: [],
-            messages: []
+            messages: [],
+            latestActive: (new Date).getTime()
         });
 
         for (var user = 0; user < users.length; user++) {

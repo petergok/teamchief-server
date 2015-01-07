@@ -16,7 +16,15 @@ mongoose.connect(uristring, function (err, res) {
 });
 
 /** Uncomment to remove all collections on startup
-userModel.remove({}, function(err) { 
+user.model.remove({}, function(err) { 
+   console.log('collection removed') 
+});
+
+message.model.remove({}, function(err) { 
+   console.log('collection removed') 
+});
+
+conversation.model.remove({}, function(err) { 
    console.log('collection removed') 
 });*/
 

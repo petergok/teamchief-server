@@ -8,11 +8,13 @@ var sender = new gcm.Sender(Constants.GCM_API_KEY);
 var conversationSchema = new Schema({
     name: {type: String, required: false},
     users: [{type: Schema.Types.ObjectId, ref: 'User'}],
+    latestActive: {type: Number, required: true},
     messages: [{type: Schema.Types.ObjectId, ref: 'Message'}]
 });
 
 conversationSchema.methods.sendMessage = function(sendingUser, message, res) {
     this.messages.push(message._id);
+    this.latestActive = message.sendTime;
 
     this.save(function(err, conversation) {
         if (err) {
