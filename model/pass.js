@@ -25,8 +25,3 @@ passport.use(new LocalStrategy(function(username, password, done) {
     });
   });
 }));
-
-exports.ensureAuthenticated = function(req, res, next) {
-  if (req.isAuthenticated()) { return next(); }
-  res.send("NOT AUTHENTICATED");
-}

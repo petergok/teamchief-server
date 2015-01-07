@@ -1,7 +1,7 @@
 var mongoose = require ("mongoose");
 var message = require('./schemas/message.js');
 var user = require('./schemas/user.js');
-var conversation = require('./schemas/conversation.js');
+var team = require('./schemas/team.js');
 
 exports.mongoose = mongoose;
 
@@ -24,10 +24,10 @@ message.model.remove({}, function(err) {
    console.log('collection removed') 
 });
 
-conversation.model.remove({}, function(err) { 
+team.model.remove({}, function(err) { 
    console.log('collection removed') 
 });*/
 
 exports.messageModel = message.model;
-exports.conversationModel = conversation.model;
+exports.teamModel = team.model;
 exports.userModel = user.model;

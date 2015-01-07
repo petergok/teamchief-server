@@ -5,25 +5,25 @@ var Constants = require('../constants');
 var Schema = mongoose.Schema;
 var sender = new gcm.Sender(Constants.GCM_API_KEY);
 
-var conversationSchema = new Schema({
+var teamSchema = new Schema({
     name: {type: String, required: false},
     users: [{type: Schema.Types.ObjectId, ref: 'User'}],
-    latestActive: {type: Number, required: true},
-    messages: [{type: Schema.Types.ObjectId, ref: 'Message'}]
+    messages: [{type: Schema.Types.ObjectId, ref: 'Message'}],
+    latestActive: {type: Number, required: true}
 });
 
-conversationSchema.methods.sendMessage = function(sendingUser, message, res) {
+teamSchema.methods.sendMessage = function(sendingUser, message, res) {
     this.messages.push(message._id);
     this.latestActive = message.sendTime;
 
-    this.save(function(err, conversation) {
+    this.save(function(err, team) {
         if (err) {
             console.log(err);
         } else {
-            conversation.populate('users', function(err, sameConversation) {
+            team.populate('users', function(err, sameTeam) {
                 var gcmIds = [];
-                for (var index = 0; index < conversation.users.length; index++) {
-                    var user = conversation.users[index];
+                for (var index = 0; index < team.users.length; index++) {
+                    var user = team.users[index];
                     console.log(user.gcmId);
                     gcmIds.push(user.gcmId);
                 }
@@ -37,4 +37,4 @@ conversationSchema.methods.sendMessage = function(sendingUser, message, res) {
     });
 };
 
-exports.model = mongoose.model('Conversation', conversationSchema);
+exports.model = mongoose.model('Team', teamSchema);

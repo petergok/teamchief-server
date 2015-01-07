@@ -7,8 +7,8 @@ var MessageTypes = {
 };
 
 var messageSchema = new Schema({
-    _sender: {type: Schema.Types.ObjectId, ref: 'User'},
-    _conversation: {type: Schema.Types.ObjectId, ref: 'Conversation'},
+    sender: {type: Schema.Types.ObjectId, ref: 'User'},
+    team: {type: Schema.Types.ObjectId, ref: 'Team'},
     sendTime: {type: Number, required: true},
     text: {type: String, required: true}
 });
@@ -17,10 +17,10 @@ messageSchema.methods.convertToGcmMessage = function() {
     return new gcm.Message({
         data: {
             messageType: MessageTypes.TEXT_MESSAGE,
-            senderName: this._sender.username,
+            senderName: this.sender.username,
             sendTime: this.sendTime,
             text: this.text,
-            conversationId: this._conversation._id
+            teamId: this.team._id
         }
     });
 }

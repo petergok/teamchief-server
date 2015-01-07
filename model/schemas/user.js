@@ -10,7 +10,7 @@ var userSchema = new Schema({
   password: { type: String, required: true},
   gcmId: {type: String, required: true, unique: true},
   gcmIdAppVersion: {type: String, required: true},
-  conversations: [{type: Schema.Types.ObjectId, ref: 'Conversation'}]
+  teams: [{type: Schema.Types.ObjectId, ref: 'Team'}]
 });
 
 userSchema.pre('save', function(next) {
