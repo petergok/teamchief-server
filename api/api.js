@@ -96,16 +96,28 @@ exports.getTeam = function(req, res, next) {
     if (!req.params || !req.params.id) {
         res.status(400).send('Invalid request');
         return;
-    }    
+    }
+
+    var populateMessagesOptions = {
+        path: 'messages',
+        select: '-_id sender sendTime text',
+        options: {
+            limit: 50,
+            sort: { 'sendTime': -1 }
+        }
+    }
+
+    if (req.query.after) {
+        populateMessagesOptions.match = { sendTime: {$gt: req.query.after}};
+        populateMessagesOptions.options.limit = 10000;
+        console.log(populateMessagesOptions);
+    } else if (req.query.before) {
+        populateMessagesOptions.match = { sendTime: {$lt: req.query.before}};
+        console.log(populateMessagesOptions);
+    }
 
     db.teamModel.findById(req.params.id).select('-__v')
-        .populate({
-            path: 'messages',
-            select: '-_id sender sendTime text',
-            options: {
-                sort: { 'sendTime': -1 }
-            }
-        }).populate({
+        .populate(populateMessagesOptions).populate({
             path: 'users',
             select: '-_id username'
         }).exec(function(err, team) {
