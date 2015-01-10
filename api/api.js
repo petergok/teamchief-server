@@ -1,10 +1,12 @@
 var db = require('../model/dbschema.js');
 var async = require('async');
 
+var SUCCESS_RESULT = "Request Successful";
+
 exports.registerNewUser = function(req, res, next) {
     console.log(req.body);
     if (!req.body || !req.body.gcmId || !req.body.username || !req.body.email 
-        || !req.body.password || !req.body.appVersion) {
+        || !req.body.password) {
         res.status(400).send('Invalid request');
         return;
     }
@@ -14,7 +16,6 @@ exports.registerNewUser = function(req, res, next) {
         email: req.body.email,
         password: req.body.password,
         gcmId: req.body.gcmId,
-        gcmIdAppVersion: req.body.appVersion,
         teams: []
     });
 
@@ -27,6 +28,26 @@ exports.registerNewUser = function(req, res, next) {
         }
     });
 };
+
+exports.updateRegistrationId = function(req, rest, next) {
+    console.log(req.body);
+    if (!req.body || !req.body.gcmId) {
+        res.status(400).send('Invalid request');
+        return;   
+    }
+
+    db.userModel.findOne({username: req.body.username}).exec(function(err, user) {
+        user.gcmId = req.body.gcmId;
+        user.save(function(err) {
+            if (err) {
+                console.log(err);
+                res.send("Error updating");
+            } else {
+                res.send(SUCCESS_RESULT);
+            }
+        })
+    })
+}
 
 exports.getTeams = function(req, res, next) {
     console.log(req.query);
@@ -100,7 +121,7 @@ exports.getTeam = function(req, res, next) {
 
     var populateMessagesOptions = {
         path: 'messages',
-        select: '-_id sender sendTime text',
+        select: 'sender sendTime text',
         options: {
             limit: 50,
             sort: { 'sendTime': -1 }
@@ -108,11 +129,11 @@ exports.getTeam = function(req, res, next) {
     }
 
     if (req.query.after) {
-        populateMessagesOptions.match = { sendTime: {$gt: req.query.after}};
+        populateMessagesOptions.match = { sendTime: {$gte: req.query.after}};
         populateMessagesOptions.options.limit = 10000;
         console.log(populateMessagesOptions);
     } else if (req.query.before) {
-        populateMessagesOptions.match = { sendTime: {$lt: req.query.before}};
+        populateMessagesOptions.match = { sendTime: {$lte: req.query.before}};
         console.log(populateMessagesOptions);
     }
 

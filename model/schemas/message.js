@@ -20,7 +20,8 @@ messageSchema.methods.convertToGcmMessage = function() {
             senderName: this.sender.username,
             sendTime: this.sendTime,
             text: this.text,
-            teamId: this.team._id
+            teamId: this.team._id,
+            collapseKey: 'newMessage'
         }
     });
 }

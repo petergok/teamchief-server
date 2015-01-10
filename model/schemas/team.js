@@ -1,6 +1,6 @@
 var mongoose = require ("mongoose");
 var gcm = require('node-gcm');
-var Constants = require('../constants');
+var Constants = require('../../constants');
 
 var Schema = mongoose.Schema;
 var sender = new gcm.Sender(Constants.GCM_API_KEY);

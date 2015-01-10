@@ -6,8 +6,6 @@ var api = require('./api/api.js');
 
 var app = express();
 
-var SUCCESS_RESULT = "Request Successful";
-
 app.use(logfmt.requestLogger());
 
 var bodyParser = require('body-parser')
@@ -25,6 +23,7 @@ app.post('/message', passport.authenticate('local'), api.sendMessage);
 app.post('/team', passport.authenticate('local'), api.createTeam);
 app.get('/teams', passport.authenticate('local'), api.getTeams);
 app.get('/team/:id?', passport.authenticate('local'), api.getTeam);
+app.post('/gcmId', passport.authenticate('local'), api.updateRegistrationId);
 app.post('/user', api.registerNewUser);
 
 app.listen(app.get('port'), function(){
