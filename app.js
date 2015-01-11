@@ -24,6 +24,7 @@ app.post('/team', passport.authenticate('local'), api.createTeam);
 app.get('/teams', passport.authenticate('local'), api.getTeams);
 app.get('/team/:id?', passport.authenticate('local'), api.getTeam);
 app.post('/gcmId', passport.authenticate('local'), api.updateRegistrationId);
+app.post('/login', passport.authenticate('local'), api.login);
 app.post('/user', api.registerNewUser);
 
 app.listen(app.get('port'), function(){

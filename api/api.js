@@ -3,6 +3,10 @@ var async = require('async');
 
 var SUCCESS_RESULT = "Request Successful";
 
+exports.login = function(req, res, next) {
+    res.send(SUCCESS_RESULT);
+}
+
 exports.registerNewUser = function(req, res, next) {
     console.log(req.body);
     if (!req.body || !req.body.gcmId || !req.body.username || !req.body.email 
