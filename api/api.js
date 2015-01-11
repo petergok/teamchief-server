@@ -62,7 +62,7 @@ exports.getTeams = function(req, res, next) {
         db.teamModel.find({}).where('_id').select('-__v').in(user.teams).sort('-latestActive')
         .populate({
             path: 'messages',
-            select: '-_id sender sendTime text',
+            select: 'sender sendTime text',
             options: {
                 limit: 1,
                 sort: { 'sendTime': -1 }
