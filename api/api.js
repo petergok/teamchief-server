@@ -29,7 +29,7 @@ exports.registerNewUser = function(req, res, next) {
     });
 };
 
-exports.updateRegistrationId = function(req, rest, next) {
+exports.updateRegistrationId = function(req, res, next) {
     console.log(req.body);
     if (!req.body || !req.body.gcmId) {
         res.status(400).send('Invalid request');

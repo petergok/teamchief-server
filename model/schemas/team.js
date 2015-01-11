@@ -21,18 +21,20 @@ teamSchema.methods.sendMessage = function(sendingUser, message, res) {
             console.log(err);
         } else {
             team.populate('users', function(err, sameTeam) {
-                var gcmIds = [];
-                for (var index = 0; index < team.users.length; index++) {
-                    var user = team.users[index];
-                    console.log(user.gcmId);
-                    gcmIds.push(user.gcmId);
-                }
+                message.populate('sender team', function(err, sameMessage) {
+                    var gcmIds = [];
+                    for (var index = 0; index < team.users.length; index++) {
+                        var user = team.users[index];
+                        console.log(user.gcmId);
+                        gcmIds.push(user.gcmId);
+                    }
 
-                sender.send(message.convertToGcmMessage(), gcmIds, 4, function(err, result) {
-                    console.log(result);
-                    console.log(err);
+                    sender.send(sameMessage.convertToGcmMessage(), gcmIds, 4, function(err, result) {
+                        console.log(result);
+                        console.log(err);
+                    });   
                 });
-            })
+            });
         }
     });
 };
