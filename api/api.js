@@ -135,10 +135,8 @@ exports.getTeam = function(req, res, next) {
     if (req.query.after) {
         populateMessagesOptions.match = { sendTime: {$gte: req.query.after}};
         populateMessagesOptions.options.limit = 10000;
-        console.log(populateMessagesOptions);
     } else if (req.query.before) {
         populateMessagesOptions.match = { sendTime: {$lte: req.query.before}};
-        console.log(populateMessagesOptions);
     }
 
     db.teamModel.findById(req.params.id).select('-__v')

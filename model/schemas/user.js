@@ -8,7 +8,7 @@ var userSchema = new Schema({
   username: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true},
   password: { type: String, required: true},
-  gcmId: {type: String, required: true},
+  gcmId: {type: String, required: true, default: "none registered"},
   teams: [{type: Schema.Types.ObjectId, ref: 'Team'}]
 });
 
